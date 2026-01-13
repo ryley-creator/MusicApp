@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "358064046198",
+    "project_id": "audio-d9a8d",
+    "storage_bucket": "audio-d9a8d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:358064046198:android:aa9aac87b8ef45b4299f57",
+        "android_client_info": {
+          "package_name": "com.example.audio_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "358064046198-u3vqq75fno2c3bndlomtnravq80000i9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT1PzeL8Pz-ztxzSDPV2sN6pkOkSCgROg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "358064046198-u3vqq75fno2c3bndlomtnravq80000i9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
