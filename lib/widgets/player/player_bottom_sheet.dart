@@ -1,4 +1,8 @@
 import 'package:audio_app/bloc/player/player_bloc.dart';
+import 'package:audio_app/database/database.dart';
+import 'package:audio_app/models/download_track.dart';
+import 'package:audio_app/models/track.dart';
+import 'package:audio_app/tools/download_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +13,23 @@ class PlayerBottomSheet extends StatelessWidget {
     final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
+  }
+
+  Future<void> downloadTrack(Track track) async {
+    final service = DownloadService();
+    final path = await service.downloadTrack(
+      url: track.audioUrl,
+      filename: track.id,
+    );
+    await DownloadDb.insert(
+      DownloadTrack(
+        artist: track.artist,
+        filepath: path,
+        id: track.id,
+        image: track.image,
+        title: track.title,
+      ),
+    );
   }
 
   @override
@@ -95,36 +116,49 @@ class PlayerBottomSheet extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        iconSize: 36,
-                        icon: const Icon(Icons.skip_previous),
                         onPressed: () {
-                          context.read<PlayerBloc>().add(PrevTrack());
+                          downloadTrack(state.currentTrack!);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Downloading...')),
+                          );
                         },
+                        icon: Icon(Icons.download, size: 40),
                       ),
-                      IconButton(
-                        iconSize: 56,
-                        icon: Icon(
-                          state.status == PlayerStatus.playing
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                        ),
-                        onPressed: () =>
-                            context.read<PlayerBloc>().add(TogglePlayPause()),
+                      Row(
+                        children: [
+                          IconButton(
+                            iconSize: 36,
+                            icon: const Icon(Icons.skip_previous),
+                            onPressed: () {
+                              context.read<PlayerBloc>().add(PrevTrack());
+                            },
+                          ),
+                          IconButton(
+                            iconSize: 56,
+                            icon: Icon(
+                              state.status == PlayerStatus.playing
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
+                            ),
+                            onPressed: () => context.read<PlayerBloc>().add(
+                              TogglePlayPause(),
+                            ),
+                          ),
+                          IconButton(
+                            iconSize: 36,
+                            icon: const Icon(Icons.skip_next),
+                            onPressed: () {
+                              context.read<PlayerBloc>().add(NextTrack());
+                            },
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        iconSize: 36,
-                        icon: const Icon(Icons.skip_next),
-                        onPressed: () {
-                          context.read<PlayerBloc>().add(NextTrack());
-                        },
-                      ),
+                      IconButton(onPressed: () {}, icon: Icon(Icons.favorite)),
                     ],
                   ),
-
-                  const SizedBox(height: 40),
                 ],
               ),
             );

@@ -45,7 +45,6 @@ class PlaylistTracksPage extends StatelessWidget {
                   itemCount: state.tracks.length,
                 ),
               ),
-              SizedBox(height: 80),
             ],
           );
         },

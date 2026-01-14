@@ -1,5 +1,3 @@
-import 'package:loading_animation_widget/loading_animation_widget.dart';
-
 import '../imports/imports.dart';
 
 class CategoryTracksPage extends StatefulWidget {
@@ -20,12 +18,7 @@ class _CategoryPageState extends State<CategoryTracksPage> {
   @override
   void initState() {
     super.initState();
-    controller.addListener(() {
-      if (controller.position.pixels >
-          controller.position.maxScrollExtent - 200) {
-        context.read<TrackBloc>().add(FetchMoreTracks(TrackCategory.popular));
-      }
-    });
+    controller.addListener(() {});
   }
 
   @override

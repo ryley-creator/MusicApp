@@ -1,6 +1,7 @@
 // ignore_for_file: unreachable_switch_case
 
 import 'package:audio_app/pages/category_page.dart';
+import 'package:audio_app/pages/downloads_page.dart';
 
 import '../../imports/imports.dart';
 
@@ -70,7 +71,13 @@ class _MainPageState extends State<MainPage> {
                   bloc.add(FetchPlaylists(category));
                 },
               ),
-              Library(),
+              Library(
+                onTap: () {
+                  setState(() {
+                    pageIndex = 6;
+                  });
+                },
+              ),
               CategoryTracksPage(
                 title: categoryTitle,
                 onPressed: () {
@@ -115,6 +122,13 @@ class _MainPageState extends State<MainPage> {
                     if (bloc.state.tracks.isEmpty) {
                       bloc.add(FetchPlaylistTracks(playlistId));
                     }
+                  });
+                },
+              ),
+              DownloadsPage(
+                onPressed: () {
+                  setState(() {
+                    pageIndex = 2;
                   });
                 },
               ),

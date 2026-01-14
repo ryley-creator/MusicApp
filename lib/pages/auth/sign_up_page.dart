@@ -17,7 +17,7 @@ class _SignUpPageState extends State<SignUpPage> {
     });
   }
 
-  void signUp() async {
+  void signUp(BuildContext context) async {
     final AuthService auth = AuthService();
     try {
       await auth.signUp(email.text, password.text);
@@ -73,7 +73,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               GestureDetector(
                 onTap: () {
-                  signUp();
+                  signUp(context);
                   FocusScope.of(context).unfocus();
                   changeText('Creating Account...');
                 },

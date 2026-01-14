@@ -18,7 +18,7 @@ class Track {
     audioUrl:
         'https://discoveryprovider.audius.co/v1/tracks/${data['id']}/stream',
     id: data['id'],
-    image: data['artwork']['150x150'],
+    image: data['artwork']['150x150'] ?? '',
     title: data['title'] ?? 'Unknown',
   );
 }

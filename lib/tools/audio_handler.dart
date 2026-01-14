@@ -1,91 +1,73 @@
-import 'package:audio_app/models/track.dart';
+import 'package:audio_app/imports/imports.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 
 class AppAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
-  final AudioPlayer _player = AudioPlayer();
+  final AudioPlayer player = AudioPlayer();
 
   AppAudioHandler() {
-    _player.playbackEventStream.listen(_broadcastState);
+    player.playbackEventStream.listen(broadcastState);
+    player.processingStateStream.listen((state) {
+      if (state == ProcessingState.completed) {
+        skipToNext();
+      }
+    });
   }
 
-  Future<void> playTrack(String url) async {
-    await _player.setUrl(url);
-    await _player.play();
-  }
-
-  void _broadcastState(PlaybackEvent event) {
+  void broadcastState(PlaybackEvent event) {
     playbackState.add(
-      PlaybackState(
+      playbackState.value.copyWith(
         controls: [
           MediaControl.skipToPrevious,
-          _player.playing ? MediaControl.pause : MediaControl.play,
+          player.playing ? MediaControl.pause : MediaControl.play,
           MediaControl.skipToNext,
         ],
-        systemActions: const {
-          MediaAction.seek,
-          MediaAction.seekForward,
-          MediaAction.seekBackward,
-        },
-        playing: _player.playing,
-        processingState: const {
-          ProcessingState.idle: AudioProcessingState.idle,
-          ProcessingState.loading: AudioProcessingState.loading,
-          ProcessingState.buffering: AudioProcessingState.buffering,
-          ProcessingState.ready: AudioProcessingState.ready,
-          ProcessingState.completed: AudioProcessingState.completed,
-        }[_player.processingState]!,
-        updatePosition: _player.position,
+        playing: player.playing,
+        processingState: AudioProcessingState.ready,
+        updatePosition: player.position,
       ),
     );
   }
 
-  @override
-  Future<void> play() => _player.play();
-
-  @override
-  Future<void> pause() => _player.pause();
-
-  @override
-  Future<void> skipToNext() => _player.seekToNext();
-
-  @override
-  Future<void> skipToPrevious() => _player.seekToPrevious();
-
-  @override
-  Future<void> seek(Duration position) => _player.seek(position);
-
-  Future<void> playQueue(List<Track> tracks, int index) async {
-    final playlist = ConcatenatingAudioSource(
-      children: tracks
-          .map(
-            (t) => AudioSource.uri(
-              Uri.parse(t.audioUrl),
-              tag: MediaItem(
-                id: t.id,
-                title: t.title,
-                artist: t.artist,
-                artUri: Uri.parse(t.image),
-              ),
-            ),
-          )
-          .toList(),
+  Future<void> playOffline(String path, Track track) async {
+    final duration = await player.setFilePath(path);
+    mediaItem.add(
+      MediaItem(
+        id: track.id,
+        title: track.title,
+        artist: track.artist,
+        artUri: Uri.parse(track.image),
+        duration: duration,
+      ),
     );
-
-    queue.add(
-      tracks
-          .map(
-            (t) => MediaItem(
-              id: t.id,
-              title: t.title,
-              artist: t.artist,
-              artUri: Uri.parse(t.image),
-            ),
-          )
-          .toList(),
-    );
-
-    await _player.setAudioSource(playlist, initialIndex: index);
-    await _player.play();
+    await player.setFilePath(path);
+    await player.play();
   }
+
+  Future<void> playTrack(String url, Track track) async {
+    final duration = await player.setUrl(url);
+    mediaItem.add(
+      MediaItem(
+        id: track.id,
+        title: track.title,
+        artist: track.artist,
+        artUri: Uri.parse(track.image),
+        duration: duration,
+      ),
+    );
+    await player.setUrl(url);
+    await player.play();
+  }
+
+  @override
+  Future<void> play() => player.play();
+
+  @override
+  Future<void> pause() => player.pause();
+
+  @override
+  Future<void> skipToNext() async {}
+
+  @override
+  Future<void> skipToPrevious() async {}
 }

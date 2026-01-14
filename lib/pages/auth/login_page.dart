@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  void login() async {
+  void login(BuildContext context) async {
     final AuthService auth = AuthService();
     try {
       await auth.login(email.text, password.text);
@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               GestureDetector(
                 onTap: () {
-                  login();
+                  login(context);
                   FocusScope.of(context).unfocus();
                 },
                 child: LoginContainer(text: currentText),

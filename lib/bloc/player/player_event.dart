@@ -34,3 +34,13 @@ class PlaybackStateChanged extends PlayerEvent {
   final PlaybackState playbackState;
   const PlaybackStateChanged(this.playbackState);
 }
+
+class PlayOffline extends PlayerEvent {
+  final Track track;
+  const PlayOffline(this.track);
+}
+
+class DurationChanged extends PlayerEvent {
+  final Duration duration;
+  const DurationChanged(this.duration);
+}

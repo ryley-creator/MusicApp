@@ -32,23 +32,30 @@ class CategoryPage extends StatelessWidget {
               ),
             );
           }
-          return GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-            ),
-            itemCount: playlists.length,
-            itemBuilder: (context, index) {
-              return PlaylistBox(
-                playlist: playlists[index],
-                onTap: () {
-                  final playlistId = playlists[index].id;
-                  context.read<PlaylistTrackBloc>().add(
-                    FetchPlaylistTracks(playlistId),
-                  );
-                  return onOpenPlaylist(playlistId, category);
-                },
-              );
-            },
+          return Column(
+            children: [
+              SizedBox(height: 16),
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                  ),
+                  itemCount: playlists.length,
+                  itemBuilder: (context, index) {
+                    return PlaylistBox(
+                      playlist: playlists[index],
+                      onTap: () {
+                        final playlistId = playlists[index].id;
+                        context.read<PlaylistTrackBloc>().add(
+                          FetchPlaylistTracks(playlistId),
+                        );
+                        return onOpenPlaylist(playlistId, category);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),

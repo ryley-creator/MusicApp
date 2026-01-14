@@ -13,12 +13,26 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     on<TogglePlayPause>(onTogglePlayPause);
     on<PrevTrack>(onPrev);
     on<NextTrack>(onNext);
+    on<PlayOffline>(onPlayOffline);
     on<PlaybackStateChanged>(onPlaybackChanged);
+    on<DurationChanged>(onDurationChanged);
     audioHandler.playbackState.listen((state) {
       add(PlaybackStateChanged(state));
+      if (state.processingState == AudioProcessingState.completed) {
+        add(NextTrack());
+      }
+      audioHandler.mediaItem.listen((mediaItem) {
+        if (mediaItem?.duration != null) {
+          add(DurationChanged(mediaItem!.duration!));
+        }
+      });
     });
   }
   final AppAudioHandler audioHandler;
+
+  void onDurationChanged(DurationChanged event, Emitter<PlayerState> emit) {
+    emit(state.copyWith(duration: event.duration));
+  }
 
   Future<void> playAtIndex(int index, Emitter<PlayerState> emit) async {
     final track = state.queue[index];
@@ -29,7 +43,23 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
         currentIndex: index,
       ),
     );
-    await audioHandler.playTrack(track.audioUrl);
+    await audioHandler.playTrack(track.audioUrl, track);
+    emit(state.copyWith(status: PlayerStatus.playing));
+  }
+
+  Future<void> onPlayOffline(
+    PlayOffline event,
+    Emitter<PlayerState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        queue: [event.track],
+        currentIndex: 0,
+        currentTrack: event.track,
+        status: PlayerStatus.loading,
+      ),
+    );
+    await audioHandler.playOffline(event.track.audioUrl, event.track);
     emit(state.copyWith(status: PlayerStatus.playing));
   }
 
