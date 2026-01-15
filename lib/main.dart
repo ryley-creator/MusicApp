@@ -1,4 +1,6 @@
+import 'package:audio_app/bloc/download/download_bloc.dart';
 import 'package:audio_app/tools/audio_handler.dart';
+import 'package:audio_app/tools/download_service.dart';
 import 'package:audio_service/audio_service.dart';
 import 'imports/imports.dart';
 
@@ -18,6 +20,7 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: [
+        BlocProvider(create: (_) => DownloadBloc()..add(LoadDownloads())),
         BlocProvider(create: (context) => TrackBloc(AppAudioService())),
         BlocProvider(
           create: (_) => PlaylistBloc(AppAudioService())
@@ -26,7 +29,9 @@ void main() async {
             ..add(FetchPlaylists(PlaylistCategory.phonk)),
         ),
         BlocProvider(create: (_) => PlaylistTrackBloc(AppAudioService())),
-        BlocProvider(create: (_) => PlayerBloc(AppAudioHandler())),
+        BlocProvider(
+          create: (_) => PlayerBloc(AppAudioHandler(), DownloadService()),
+        ),
       ],
       child: MyApp(),
     ),

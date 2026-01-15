@@ -1,8 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:audio_app/bloc/download/download_bloc.dart';
 import 'package:audio_app/bloc/player/player_bloc.dart';
-import 'package:audio_app/database/database.dart';
-import 'package:audio_app/models/download_track.dart';
-import 'package:audio_app/models/track.dart';
-import 'package:audio_app/tools/download_service.dart';
+import 'package:audio_app/imports/imports.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,32 +15,25 @@ class PlayerBottomSheet extends StatelessWidget {
     return '$minutes:$seconds';
   }
 
-  Future<void> downloadTrack(Track track) async {
-    final service = DownloadService();
-    final path = await service.downloadTrack(
-      url: track.audioUrl,
-      filename: track.id,
-    );
-    await DownloadDb.insert(
-      DownloadTrack(
-        artist: track.artist,
-        filepath: path,
-        id: track.id,
-        image: track.image,
-        title: track.title,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       builder: (context, controller) {
-        return BlocBuilder<PlayerBloc, PlayerState>(
+        return BlocConsumer<PlayerBloc, PlayerState>(
+          listenWhen: (prev, curr) =>
+              prev.downloadStatus != curr.downloadStatus &&
+              curr.downloadStatus == DownloadStatus.success,
+          listener: (context, state) {
+            context.read<DownloadBloc>().add(ReloadDownload());
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Downloaded')));
+          },
           builder: (context, state) {
+            final track = state.currentTrack!;
             return Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
+              padding: EdgeInsets.symmetric(horizontal: 15),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: const BorderRadius.vertical(
@@ -118,14 +111,24 @@ class PlayerBottomSheet extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(
-                        onPressed: () {
-                          downloadTrack(state.currentTrack!);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Downloading...')),
+                      BlocBuilder<DownloadBloc, DownloadState>(
+                        builder: (context, state) {
+                          final isDownloaded = state.isDownloaded(track.id);
+                          if (isDownloaded) {
+                            return const Icon(
+                              Icons.download_done_rounded,
+                              size: 35,
+                            );
+                          }
+                          return IconButton(
+                            icon: const Icon(Icons.download, size: 35),
+                            onPressed: () {
+                              context.read<PlayerBloc>().add(
+                                DownloadCurrentTrack(),
+                              );
+                            },
                           );
                         },
-                        icon: Icon(Icons.download, size: 40),
                       ),
                       Row(
                         children: [
@@ -156,7 +159,10 @@ class PlayerBottomSheet extends StatelessWidget {
                           ),
                         ],
                       ),
-                      IconButton(onPressed: () {}, icon: Icon(Icons.favorite)),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.favorite_outline, size: 30),
+                      ),
                     ],
                   ),
                 ],

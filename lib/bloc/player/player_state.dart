@@ -2,6 +2,8 @@ part of 'player_bloc.dart';
 
 enum PlayerStatus { intial, loading, paused, playing, completed }
 
+enum DownloadStatus { initial, loading, success, error }
+
 class PlayerState extends Equatable {
   const PlayerState({
     this.currentIndex = 0,
@@ -10,6 +12,7 @@ class PlayerState extends Equatable {
     this.position = Duration.zero,
     this.queue = const [],
     this.status = PlayerStatus.intial,
+    this.downloadStatus = DownloadStatus.initial,
   });
 
   final Track? currentTrack;
@@ -18,6 +21,7 @@ class PlayerState extends Equatable {
   final Duration position;
   final int currentIndex;
   final List<Track> queue;
+  final DownloadStatus downloadStatus;
 
   PlayerState copyWith({
     Track? currentTrack,
@@ -26,6 +30,7 @@ class PlayerState extends Equatable {
     Duration? position,
     int? currentIndex,
     List<Track>? queue,
+    DownloadStatus? downloadStatus,
   }) {
     return PlayerState(
       position: position ?? this.position,
@@ -34,11 +39,13 @@ class PlayerState extends Equatable {
       currentTrack: currentTrack ?? this.currentTrack,
       status: status ?? this.status,
       queue: queue ?? this.queue,
+      downloadStatus: downloadStatus ?? this.downloadStatus,
     );
   }
 
   @override
   List<Object?> get props => [
+    downloadStatus,
     currentIndex,
     currentTrack,
     duration,

@@ -1,14 +1,14 @@
-import 'package:audio_app/models/track.dart';
+import 'package:audio_app/bloc/download/download_bloc.dart';
+import 'package:audio_app/imports/imports.dart';
 import 'package:audio_app/tools/audio_handler.dart';
+import 'package:audio_app/tools/download_service.dart';
 import 'package:audio_service/audio_service.dart';
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-
 part 'player_event.dart';
 part 'player_state.dart';
 
 class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
-  PlayerBloc(this.audioHandler) : super(PlayerState()) {
+  PlayerBloc(this.audioHandler, this.downloadService) : super(PlayerState()) {
     on<PlayTrack>(onPlayTrack);
     on<TogglePlayPause>(onTogglePlayPause);
     on<PrevTrack>(onPrev);
@@ -16,6 +16,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     on<PlayOffline>(onPlayOffline);
     on<PlaybackStateChanged>(onPlaybackChanged);
     on<DurationChanged>(onDurationChanged);
+    on<DownloadCurrentTrack>(downloadCurrentTrack);
     audioHandler.playbackState.listen((state) {
       add(PlaybackStateChanged(state));
       if (state.processingState == AudioProcessingState.completed) {
@@ -29,6 +30,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     });
   }
   final AppAudioHandler audioHandler;
+  final DownloadService downloadService;
 
   void onDurationChanged(DurationChanged event, Emitter<PlayerState> emit) {
     emit(state.copyWith(duration: event.duration));
@@ -61,6 +63,28 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     );
     await audioHandler.playOffline(event.track.audioUrl, event.track);
     emit(state.copyWith(status: PlayerStatus.playing));
+  }
+
+  Future<void> downloadCurrentTrack(
+    DownloadCurrentTrack event,
+    Emitter<PlayerState> emit,
+  ) async {
+    emit(state.copyWith(downloadStatus: DownloadStatus.loading));
+    final track = state.currentTrack!;
+    final path = await downloadService.downloadTrack(
+      url: track.audioUrl,
+      filename: track.id,
+    );
+    await DownloadDb.insert(
+      DownloadTrack(
+        artist: track.artist,
+        filepath: path,
+        id: track.id,
+        image: track.image,
+        title: track.title,
+      ),
+    );
+    emit(state.copyWith(downloadStatus: DownloadStatus.success));
   }
 
   void onPlaybackChanged(

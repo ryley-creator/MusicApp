@@ -1,3 +1,5 @@
+import 'package:audio_app/bloc/download/download_bloc.dart';
+
 import '../imports/imports.dart';
 
 class DownloadsPage extends StatelessWidget {
@@ -10,10 +12,9 @@ class DownloadsPage extends StatelessWidget {
         title: Text('Downloads'),
         leading: IconButton(onPressed: onPressed, icon: Icon(Icons.arrow_back)),
       ),
-      body: FutureBuilder(
-        future: DownloadDb.getAll(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+      body: BlocBuilder<DownloadBloc, DownloadState>(
+        builder: (context, state) {
+          if (state.isLoading) {
             return Center(
               child: LoadingAnimationWidget.newtonCradle(
                 color: Colors.white,
@@ -21,8 +22,7 @@ class DownloadsPage extends StatelessWidget {
               ),
             );
           }
-          final tracks = snapshot.data!;
-          if (tracks.isEmpty) {
+          if (state.tracks.isEmpty) {
             return Center(
               child: Text(
                 'No downloads yet...',
@@ -33,23 +33,57 @@ class DownloadsPage extends StatelessWidget {
           return ListView.builder(
             itemBuilder: (context, index) {
               return DownloadTrackTile(
-                track: tracks[index],
+                onLongPress: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            final t = state.tracks[index];
+                            final track = Track(
+                              id: t.id,
+                              title: t.title,
+                              artist: t.artist,
+                              image: t.image,
+                              audioUrl: t.filepath,
+                            );
+                            context.read<DownloadBloc>().add(
+                              DeleteTrack(track),
+                            );
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text('Cancel'),
+                        ),
+                      ],
+                      content: Text('Do u really want to delete the music?'),
+                    ),
+                  );
+                },
+                track: state.tracks[index],
                 onTap: () {
-                  final t = tracks[index];
-
+                  final t = state.tracks[index];
                   final track = Track(
                     id: t.id,
                     title: t.title,
                     artist: t.artist,
                     image: t.image,
                     audioUrl: t.filepath,
-                    // isOffline: true,
                   );
                   context.read<PlayerBloc>().add(PlayOffline(track));
                 },
               );
             },
-            itemCount: tracks.length,
+            itemCount: state.tracks.length,
           );
         },
       ),

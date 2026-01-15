@@ -44,3 +44,5 @@ class DurationChanged extends PlayerEvent {
   final Duration duration;
   const DurationChanged(this.duration);
 }
+
+class DownloadCurrentTrack extends PlayerEvent {}
