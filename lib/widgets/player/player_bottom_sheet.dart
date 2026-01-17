@@ -117,6 +117,12 @@ class PlayerBottomSheet extends StatelessWidget {
                               size: 35,
                             );
                           }
+                          if (state.isLoading == true) {
+                            return LoadingAnimationWidget.progressiveDots(
+                              color: Colors.white,
+                              size: 40,
+                            );
+                          }
                           return IconButton(
                             icon: const Icon(Icons.download, size: 35),
                             onPressed: () {
@@ -156,11 +162,27 @@ class PlayerBottomSheet extends StatelessWidget {
                           ),
                         ],
                       ),
-                      IconButton(
-                        onPressed: () {
-                          context.read<FavoriteBloc>().add(AddFavorite(track));
+                      BlocBuilder<FavoriteBloc, FavoriteState>(
+                        builder: (context, state) {
+                          final isFav = state.isFavorite(track.id);
+                          return IconButton(
+                            onPressed: () {
+                              if (isFav) {
+                                context.read<FavoriteBloc>().add(
+                                  DeleteFavorite(track),
+                                );
+                              } else {
+                                context.read<FavoriteBloc>().add(
+                                  AddFavorite(track),
+                                );
+                              }
+                            },
+                            icon: Icon(
+                              isFav ? Icons.favorite : Icons.favorite_border,
+                              color: isFav ? Colors.red : null,
+                            ),
+                          );
                         },
-                        icon: Icon(Icons.favorite),
                       ),
                     ],
                   ),

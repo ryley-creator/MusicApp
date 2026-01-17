@@ -23,7 +23,7 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
   ) async {
     emit(state.copyWith(isLoading: true));
     final tracks = await LocalDB.getAll();
-    emit(state.copyWith(tracks: List.from(tracks)));
+    emit(state.copyWith(tracks: List.from(tracks), isLoading: false));
   }
 
   Future<void> onDelete(DeleteTrack event, Emitter<DownloadState> emit) async {

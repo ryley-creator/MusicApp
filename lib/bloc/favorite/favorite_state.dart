@@ -12,6 +12,10 @@ class FavoriteState extends Equatable {
     );
   }
 
+  bool isFavorite(String id) {
+    return tracks.any((t) => t.id == id);
+  }
+
   @override
   List<Object> get props => [tracks, isLoading];
 }
