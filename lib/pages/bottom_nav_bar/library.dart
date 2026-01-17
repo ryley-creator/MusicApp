@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Library extends StatelessWidget {
-  const Library({super.key, required this.onTap});
+  const Library({
+    super.key,
+    required this.onTap,
+    required this.onOpenFavorites,
+  });
   final void Function() onTap;
+  final void Function() onOpenFavorites;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +35,7 @@ class Library extends StatelessWidget {
             ),
             SizedBox(height: 20),
             ListTile(
-              onTap: () {},
+              onTap: onOpenFavorites,
               title: Text('Favorites', style: TextStyle(fontSize: 23)),
               leading: Container(
                 decoration: BoxDecoration(

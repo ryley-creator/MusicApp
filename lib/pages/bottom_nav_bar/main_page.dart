@@ -2,6 +2,7 @@
 
 import 'package:audio_app/pages/category_page.dart';
 import 'package:audio_app/pages/downloads_page.dart';
+import 'package:audio_app/pages/favorites_page.dart';
 
 import '../../imports/imports.dart';
 
@@ -19,6 +20,7 @@ class _MainPageState extends State<MainPage> {
   String playlistTitle = '';
   PlaylistCategory selectedPlaylistCategory = PlaylistCategory.phonk;
   bool isOpenedFromHome = true;
+  String playlistImage = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,16 +31,22 @@ class _MainPageState extends State<MainPage> {
             index: pageIndex,
             children: [
               HomePage(
-                onOpenPlaylist: (playlistId) {
-                  setState(() {
-                    playlistTitle = 'PLaylist Name';
-                    pageIndex = 4;
-                    final bloc = context.read<PlaylistTrackBloc>();
-                    if (bloc.state.tracks.isEmpty) {
-                      bloc.add(FetchPlaylistTracks(playlistId));
-                    }
-                  });
-                },
+                onOpenPlaylist:
+                    ({
+                      required String playlistId,
+                      required String title,
+                      required String image,
+                    }) {
+                      setState(() {
+                        playlistTitle = title;
+                        playlistImage = image;
+                        pageIndex = 4;
+                        final bloc = context.read<PlaylistTrackBloc>();
+                        if (bloc.state.tracks.isEmpty) {
+                          bloc.add(FetchPlaylistTracks(playlistId));
+                        }
+                      });
+                    },
                 onOpenCategory: (category) {
                   setState(() {
                     isOpenedFromHome = true;
@@ -72,6 +80,11 @@ class _MainPageState extends State<MainPage> {
                 },
               ),
               Library(
+                onOpenFavorites: () {
+                  setState(() {
+                    pageIndex = 7;
+                  });
+                },
                 onTap: () {
                   setState(() {
                     pageIndex = 6;
@@ -93,6 +106,7 @@ class _MainPageState extends State<MainPage> {
                 },
               ),
               PlaylistTracksPage(
+                image: playlistImage,
                 title: playlistTitle,
                 onPressed: () {
                   setState(() {
@@ -126,6 +140,13 @@ class _MainPageState extends State<MainPage> {
                 },
               ),
               DownloadsPage(
+                onPressed: () {
+                  setState(() {
+                    pageIndex = 2;
+                  });
+                },
+              ),
+              FavoritesPage(
                 onPressed: () {
                   setState(() {
                     pageIndex = 2;

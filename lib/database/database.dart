@@ -1,6 +1,6 @@
 import '../imports/imports.dart';
 
-class DownloadDb {
+class LocalDB {
   static Database? db;
 
   static Future<Database> get database async {
@@ -15,7 +15,7 @@ class DownloadDb {
 
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE downloads(
@@ -26,8 +26,42 @@ class DownloadDb {
             artwork TEXT
           )
         ''');
+        await db.execute('''
+         CREATE TABLE favorites(
+          id TEXT PRIMARY KEY,
+          title TEXT,
+          artist TEXT,
+          image TEXT
+          )
+          ''');
       },
     );
+  }
+
+  static Future<void> addFavorite(Track track) async {
+    final db = await database;
+    await db.insert(
+      'favorites',
+      track.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<List<Track>> getFavorites() async {
+    final db = await database;
+    final response = await db.query('favorites');
+    return response.map(Track.fromMap).toList();
+  }
+
+  static Future<void> removeFromFavorites(String id) async {
+    final db = await database;
+    await db.delete('favorites', where: 'id = ?', whereArgs: [id]);
+  }
+
+  static Future<bool> isFavorite(String id) async {
+    final db = await database;
+    final res = await db.query('favorites', where: 'id = ?', whereArgs: [id]);
+    return res.isNotEmpty;
   }
 
   static Future<void> insert(DownloadTrack track) async {

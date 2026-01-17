@@ -9,7 +9,12 @@ class HomePage extends StatelessWidget {
     required this.onOpenPlaylist,
   });
   final void Function(TrackCategory category) onOpenCategory;
-  final void Function(String playlistid) onOpenPlaylist;
+  final void Function({
+    required String playlistId,
+    required String title,
+    required String image,
+  })
+  onOpenPlaylist;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,11 +95,16 @@ class HomePage extends StatelessWidget {
                     return PlaylistBox(
                       playlist: trending[index],
                       onTap: () {
+                        final playlist = trending[index];
                         final playlistId = trending[index].id;
                         context.read<PlaylistTrackBloc>().add(
                           FetchPlaylistTracks(playlistId),
                         );
-                        return onOpenPlaylist(playlistId);
+                        return onOpenPlaylist(
+                          playlistId: playlistId,
+                          title: playlist.title,
+                          image: playlist.imageUrl!,
+                        );
                       },
                     );
                   },
@@ -121,11 +131,16 @@ class HomePage extends StatelessWidget {
                     return PlaylistBox(
                       playlist: phonk[index],
                       onTap: () {
+                        final playlist = phonk[index];
                         final playlistId = phonk[index].id;
                         context.read<PlaylistTrackBloc>().add(
                           FetchPlaylistTracks(playlistId),
                         );
-                        return onOpenPlaylist(playlistId);
+                        return onOpenPlaylist(
+                          playlistId: playlistId,
+                          image: playlist.imageUrl!,
+                          title: playlist.title,
+                        );
                       },
                     );
                   },
@@ -152,11 +167,16 @@ class HomePage extends StatelessWidget {
                     return PlaylistBox(
                       playlist: popular[index],
                       onTap: () {
+                        final playlist = popular[index];
                         final playlistId = popular[index].id;
                         context.read<PlaylistTrackBloc>().add(
                           FetchPlaylistTracks(playlistId),
                         );
-                        return onOpenPlaylist(playlistId);
+                        return onOpenPlaylist(
+                          playlistId: playlistId,
+                          image: playlist.imageUrl!,
+                          title: playlist.title,
+                        );
                       },
                     );
                   },

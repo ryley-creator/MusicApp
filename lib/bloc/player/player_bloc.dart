@@ -1,4 +1,3 @@
-import 'package:audio_app/bloc/download/download_bloc.dart';
 import 'package:audio_app/imports/imports.dart';
 import 'package:audio_app/tools/audio_handler.dart';
 import 'package:audio_app/tools/download_service.dart';
@@ -19,9 +18,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     on<DownloadCurrentTrack>(downloadCurrentTrack);
     audioHandler.playbackState.listen((state) {
       add(PlaybackStateChanged(state));
-      if (state.processingState == AudioProcessingState.completed) {
-        add(NextTrack());
-      }
+
       audioHandler.mediaItem.listen((mediaItem) {
         if (mediaItem?.duration != null) {
           add(DurationChanged(mediaItem!.duration!));
@@ -75,7 +72,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
       url: track.audioUrl,
       filename: track.id,
     );
-    await DownloadDb.insert(
+    await LocalDB.insert(
       DownloadTrack(
         artist: track.artist,
         filepath: path,

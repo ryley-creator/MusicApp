@@ -7,11 +7,6 @@ class AppAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   AppAudioHandler() {
     player.playbackEventStream.listen(broadcastState);
-    player.processingStateStream.listen((state) {
-      if (state == ProcessingState.completed) {
-        skipToNext();
-      }
-    });
   }
 
   void broadcastState(PlaybackEvent event) {

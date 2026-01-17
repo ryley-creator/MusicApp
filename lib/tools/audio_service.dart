@@ -103,15 +103,8 @@ class AppAudioService {
         .toList();
   }
 
-  Future<List<Track>> getPlaylistTracks(
-    String playlistId,
-    int limit,
-    int offset,
-  ) async {
-    final res = await _dio.get(
-      '/v1/playlists/$playlistId/tracks',
-      queryParameters: {'limit': limit, 'offset': offset},
-    );
+  Future<List<Track>> getPlaylistTracks(String playlistId) async {
+    final res = await _dio.get('/v1/playlists/$playlistId/tracks');
 
     return (res.data['data'] as List).map((e) => Track.fromJson(e)).toList();
   }

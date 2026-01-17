@@ -1,11 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'package:audio_app/bloc/download/download_bloc.dart';
-import 'package:audio_app/bloc/player/player_bloc.dart';
+import 'package:audio_app/bloc/favorite/favorite_bloc.dart';
 import 'package:audio_app/imports/imports.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PlayerBottomSheet extends StatelessWidget {
   const PlayerBottomSheet({super.key});
@@ -160,8 +157,10 @@ class PlayerBottomSheet extends StatelessWidget {
                         ],
                       ),
                       IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.favorite_outline, size: 30),
+                        onPressed: () {
+                          context.read<FavoriteBloc>().add(AddFavorite(track));
+                        },
+                        icon: Icon(Icons.favorite),
                       ),
                     ],
                   ),

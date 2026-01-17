@@ -21,4 +21,20 @@ class Track {
     image: data['artwork']['150x150'] ?? '',
     title: data['title'] ?? 'Unknown',
   );
+
+  factory Track.fromMap(Map<String, dynamic> map) => Track(
+    id: map['id'],
+    title: map['title'],
+    artist: map['artist'],
+    image: map['image'] ?? '',
+    audioUrl:
+        'https://discoveryprovider.audius.co/v1/tracks/${map['id']}/stream',
+  );
+
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'image': image,
+    'title': title,
+    'artist': artist,
+  };
 }

@@ -24,11 +24,7 @@ class PlaylistTrackBloc extends Bloc<PlaylistTrackEvent, PlaylistTrackState> {
     offset = 0;
 
     emit(state.copyWith(isLoading: true, tracks: []));
-    final tracks = await service.getPlaylistTracks(
-      event.playlistId,
-      limit,
-      offset,
-    );
+    final tracks = await service.getPlaylistTracks(event.playlistId);
     offset += tracks.length;
     emit(
       state.copyWith(
@@ -47,11 +43,7 @@ class PlaylistTrackBloc extends Bloc<PlaylistTrackEvent, PlaylistTrackState> {
         !state.hasMore ||
         event.playlistId != currentPlaylistId)
       return;
-    final moreTracks = await service.getPlaylistTracks(
-      event.playlistId,
-      limit,
-      offset,
-    );
+    final moreTracks = await service.getPlaylistTracks(event.playlistId);
     emit(
       state.copyWith(
         tracks: [...state.tracks, ...moreTracks],
